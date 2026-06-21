@@ -242,6 +242,7 @@ const SshConnectSchema = z.object({
   port: z.number().default(22),
   username: z.string(),
   password: z.string().optional(),
+  pw: z.string().optional(),
   privateKey: z.string().optional(),
   passphrase: z.string().optional(),
   readyTimeout: z.number().default(20000),
@@ -323,6 +324,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             port: { type: "number", description: "Port number (default: 22)" },
             username: { type: "string", description: "Username for connection" },
             password: { type: "string", description: "Password (if using password authentication)" },
+            pw: { type: "string", description: "Alias for password (helpful fallback for small LLMs)" },
             privateKey: { type: "string", description: "Raw private key content OR a local path (e.g. '~/.ssh/id_rsa') to the key" },
             passphrase: { type: "string", description: "Passphrase to decrypt the private key (if encrypted)" },
             readyTimeout: { type: "number", description: "Connection timeout in milliseconds (default: 20000)" },
@@ -471,7 +473,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     switch (name) {
       case "ssh_connect": {
         const params = SshConnectSchema.parse(args);
-        const { host, port, username, password, privateKey, passphrase, readyTimeout } = params;
+        const { host, port, username, privateKey, passphrase, readyTimeout } = params;
+        const password = params.password || params.pw;
 
         log(`Connecting to ${username}@${host}:${port}...`);
 
@@ -513,7 +516,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }
         }
 
-        const client = await connectSsh(connConfig);
+        let client;
+        try {
+          client = await connectSsh(connConfig);
+        } catch (err: any) {
+          let errMsg = err.message || err;
+          if (errMsg.includes("All configured authentication methods failed") && !password) {
+            errMsg += ". Note: No password was supplied to the ssh_connect tool. If this remote server requires password authentication, please pass the user's password using the 'password' parameter.";
+          }
+          throw new Error(errMsg);
+        }
         const connectionId = generateSessionId();
 
         client.on("close", () => {
