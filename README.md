@@ -55,7 +55,7 @@ You can directly add the configuration to your local LM Studio MCP configuration
        "lms-ssh-client-mcp": {
          "command": "node",
          "args": [
-           "/Users/ethan/desktop/projects/lms-ssh-client-mcp/LMS-SSH-Client-MCP/dist/index.js"
+           "/Users/ethan/desktop/projects/lms-ssh-client-mcp/dist/index.js"
          ]
        }
      }
@@ -71,7 +71,7 @@ You can directly add the configuration to your local LM Studio MCP configuration
    - **Name**: `lms-ssh-client-mcp`
    - **Type**: `stdio`
    - **Command**: `node`
-   - **Arguments**: `["/Users/ethan/desktop/projects/lms-ssh-client-mcp/LMS-SSH-Client-MCP/dist/index.js"]` (Make sure to use the absolute path to your compiled `dist/index.js`)
+   - **Arguments**: `["/Users/ethan/desktop/projects/lms-ssh-client-mcp/dist/index.js"]` (Make sure to use the absolute path to your compiled `dist/index.js`)
 5. Click **Save** to start the server.
 
 ---
@@ -85,7 +85,7 @@ To use this server with Claude Desktop, add it to your `claude_desktop_config.js
   "mcpServers": {
     "ssh-client": {
       "command": "node",
-      "args": ["/Users/ethan/desktop/projects/lms-ssh-client-mcp/LMS-SSH-Client-MCP/dist/index.js"]
+      "args": ["/Users/ethan/desktop/projects/lms-ssh-client-mcp/dist/index.js"]
     }
   }
 }
